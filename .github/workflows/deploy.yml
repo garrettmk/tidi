@@ -1,6 +1,6 @@
-# This is a basic workflow to help you get started with Actions
+# This workflow automatically builds the project, and publishes the docs to GitHub Pages
 
-name: Github Pages
+name: Deploy
 
 # Controls when the workflow will run
 on:
@@ -26,17 +26,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Build
-        uses: andstor/jsdoc-action@v1
-        with:
-          source_dir: ./src
-          output_dir: ./dist/docs
-          config_file: typedoc.json
-          template: minami
-          front_page: README.md
+        run: npm run build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist/docs
