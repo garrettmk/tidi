@@ -10,6 +10,7 @@ export default defineConfig({
     tsconfigPaths(),
     dts({
       insertTypesEntry: true,
+      exclude: ['src/tests']
     })
   ],
   build: {

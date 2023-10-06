@@ -220,7 +220,7 @@ describe('Scope', () => {
   });
 
   describe('getDependents', () => {
-    test('returns an array of dependencies that depend on the given dependency', async ({ scope, dependencyA, dependencyB, dependencyC }) => {
+    test('returns an array of dependencies that depend on the given dependency', async ({ scope, dependencyA, dependencyC }) => {
       const dependents = scope.getDependents(dependencyA);
 
       expect(dependents).toEqual([dependencyC]);
