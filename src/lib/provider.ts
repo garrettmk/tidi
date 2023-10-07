@@ -1,24 +1,29 @@
 import type { Dependency, DependencyType, DependencyTypes } from "./dependency";
 
 /**
- * Represents a provider for a `Dependency`.
+ * Provides a value for a `Dependency`. A `Provider` is just an object with a few properties:
+ * - `provides`: The dependency that this provider provides.
+ * - `requires`: The dependencies that this provider requires.
+ * - `use`: The factory function for the provided value. The dependencies given in `requires` will be resolved and passed to the function as arguments.
  * 
  * @example
+ * 
  * ```ts
- * const MyDependency = dependency({...});
- * const MyOtherDependency = dependency({...});
+ * import { Provider, provider } from 'tidi';
+ * import { DatabaseURLDependency, DatabaseClientDependency } from './dependencies';
  * 
- * const MyDependencyProvider = provider({
- *  provides: MyDependency,
- *  use: () => new MyDependency(),
- * });
+ * const DatabaseURLProvider: Provider<typeof DatabaseURLDependency> = {
+ *  provides: DatabaseURLDependency,
+ *  use: () => new URL(process.env.DATABASE_URL),
+ * };
  * 
- * // MyDependency will be resolved and passed to the factory function.
- * const MyOtherDependencyProvider = provider({
- *  provides: MyOtherDependency,
- *  requires: [MyDependency],
- *  use: (myDependency) => new MyOtherDependency(myDependency),
+ * // You can also use the `provider` helper function
+ * const DatabaseClientProvider = provider({
+ *  provides: DatabaseClientDependency,
+ *  requires: [DatabaseURLDependency],
+ *  use: (databaseURL) => new DatabaseClient(databaseURL),
  * });
+ * ```
  */
 export interface Provider<T extends Dependency = Dependency, D extends [...Dependency[]] = [...Dependency[]]> {
   /**
