@@ -147,16 +147,16 @@ export class Scope {
     if (Array.isArray(dependencyOrArray))
       return dependencyOrArray.map((dependency) => this.get(dependency));
 
-    if (dependency === ScopeDependency)
+    if (dependencyOrArray === ScopeDependency)
       return this as unknown as T;
 
-    if (this.cache.has(dependency))
-      return this.cache.get(dependency);
+    if (this.cache.has(dependencyOrArray))
+      return this.cache.get(dependencyOrArray);
 
     if (this.parent)
-      return this.parent.get(dependency);
+      return this.parent.get(dependencyOrArray);
 
-    throw new Error(`No value resolved for dependency ${dependency.name}`);
+    throw new Error(`No value resolved for dependency ${dependencyOrArray.name}`);
   }
 
   /**
