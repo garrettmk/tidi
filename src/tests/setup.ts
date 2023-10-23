@@ -1,5 +1,5 @@
 import { test as base } from 'vitest';
-import { Dependency, Provider, Scope, dependency, provider } from '..';
+import { Dependency, Provider, Container, dependency, provider } from '..';
 
 export type TestFixtures = {
   valueA: string;
@@ -19,8 +19,8 @@ export type TestFixtures = {
   dependencyUnknown: Dependency<string>;
   providerUnknown: Provider<Dependency<string>>;
 
-  scope: Scope;
-  childScope: Scope;
+  container: Container;
+  childContainer: Container;
 }
 
 export const test = base.extend<TestFixtures>({
@@ -62,12 +62,12 @@ export const test = base.extend<TestFixtures>({
     use: () => valueUnknown,
   })),
 
-  scope: async ({ providerA, providerB, providerC }, use) => {
-     await use(new Scope([providerA, providerB, providerC]));
+  container: async ({ providerA, providerB, providerC }, use) => {
+     await use(new Container([providerA, providerB, providerC]));
   },
 
-  childScope: async ({ scope, providerCInvalid }, use) => {
-    await use(new Scope(scope, [
+  childContainer: async ({ container, providerCInvalid }, use) => {
+    await use(new Container(container, [
       providerCInvalid
     ]));
   }

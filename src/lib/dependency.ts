@@ -1,12 +1,12 @@
 
 /**
- * Represents a value that can be requested from a `Scope`. A `Dependency` is just an object with a few properties: 
+ * Represents a value that can be requested from a `Container`. A `Dependency` is just an object with a few properties: 
  * - `name`: A human-readable identifier for the dependency.
  * - `validate`: An optional validator for the provided value.
  * 
  * Where other DI libraries use a *token* (such as a string, or a class), `tidi` uses a `Dependency`. This allows 
  * for a consistent interface when working with discrete values vs. classes, as well as providing type information 
- * for the value. A `Dependency` can also provide a validator function, which is used by `Scope` to check the value returned by the provider.
+ * for the value. A `Dependency` can also provide a validator function, which is used by `Container` to check the value returned by the provider.
  * 
  * @example
  * 

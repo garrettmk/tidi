@@ -2,60 +2,60 @@ import { Dependency, DependencyType, dependency } from "./dependency";
 import { Provider } from "./provider";
 
 /**
- * A special `Dependency` that represents the scope itself.
+ * A special `Dependency` that represents the container itself.
  */
-export const ScopeDependency = dependency<Scope>({
-  name: 'SCOPE',
+export const ContainerDependency = dependency<Container>({
+  name: 'CONTAINER',
   validate: (value) => {
-    if (!(value instanceof Scope))
-      throw new Error(`Expected value to be a Scope, got ${typeof value}`);
+    if (!(value instanceof Container))
+      throw new Error(`Expected value to be a Container, got ${typeof value}`);
   },
 });
 
 
 /**
- * A `Scope` is a container for providers. It can be used to resolve dependencies,
- * and to create sub-scopes with their own providers.
+ * A `Container` is a container for providers. It can be used to resolve dependencies,
+ * and to create sub-containers with their own providers.
  * 
  * @example
  * 
  * ```ts
- * const myScope = new Scope([
+ * const myContainer = new Container([
  *  MyDependencyProvider,
  *  MyOtherDependencyProvider,
  *  ...
  * ]);
  * 
  * // Resolve a dependency asynchronously
- * await myScope.resolve(MyDependency);
+ * await myContainer.resolve(MyDependency);
  * 
  * // If a dependency is already resolved, it can be retrieved synchronously
  * // Otherwise an error will be thrown
- * myScope.get(MyDependency);
+ * myContainer.get(MyDependency);
  * 
- * // Create a sub-scope that overrides part of the parent scope
- * const subScope = new Scope(myScope, [
+ * // Create a sub-container that overrides part of the parent container
+ * const subContainer = new Container(myContainer, [
  *  AnotherProviderForMyOtherDependency
  * ]);
  * ```
  */
-export class Scope {
-  protected readonly parent?: Scope;
+export class Container {
+  protected readonly parent?: Container;
   protected readonly cache: Map<Dependency, any>;
   protected readonly providers: Map<Dependency, Provider>;
 
 
   /**
-   * Create a new scope.
+   * Create a new container.
    * 
-   * @param parent The parent scope
-   * @param providers The scope's providers
+   * @param parent The parent container
+   * @param providers The container's providers
    */
-  constructor(parentOrProviders?: Scope | Provider[])
-  constructor(parent: Scope, providers?: Provider[])
-  constructor(parentOrProviders?: Scope | Provider[], maybeProviders?: Provider[]) {
-    const parent = parentOrProviders instanceof Scope ? parentOrProviders : undefined;
-    const providers = parentOrProviders instanceof Scope ? maybeProviders : parentOrProviders;
+  constructor(parentOrProviders?: Container | Provider[])
+  constructor(parent: Container, providers?: Provider[])
+  constructor(parentOrProviders?: Container | Provider[], maybeProviders?: Provider[]) {
+    const parent = parentOrProviders instanceof Container ? parentOrProviders : undefined;
+    const providers = parentOrProviders instanceof Container ? maybeProviders : parentOrProviders;
 
     this.parent = parent;
     this.providers = new Map(providers?.map((provider) => [provider.provides, provider]));
@@ -65,7 +65,7 @@ export class Scope {
 
   /**
    * Resolve a dependency or array of dependencies. If the dependency is resolved
-   * in this scope (not a parent scope), the resolved value will be cached.
+   * in this container (not a parent container), the resolved value will be cached.
    * 
    * @param dependency 
    * @returns 
@@ -85,15 +85,15 @@ export class Scope {
     // If it's a single dependency...
     const dependency = dependencyOrArray;
 
-    // If the dependency is the scope itself, return this scope
-    if (dependency === ScopeDependency)
+    // If the dependency is the container itself, return this container
+    if (dependency === ContainerDependency)
       return this as unknown as T;
 
     // If the dependency is already cached, return the cached value
     if (this.cache.has(dependency))
       return this.cache.get(dependency);
 
-    // If the dependency is provided in this scope, resolve it and cache the value
+    // If the dependency is provided in this container, resolve it and cache the value
     if (this.providers.has(dependency)) {
       const provider = this.getProvider(dependency);
       const value = await this.useProvider(provider);
@@ -104,7 +104,7 @@ export class Scope {
       return value;
     }
 
-    // If the dependency is not provided in this scope, try to resolve it in the parent scope
+    // If the dependency is not provided in this container, try to resolve it in the parent container
     if (this.parent)
       return await this.parent.resolve(dependency);
 
@@ -147,7 +147,7 @@ export class Scope {
     if (Array.isArray(dependencyOrArray))
       return dependencyOrArray.map((dependency) => this.get(dependency));
 
-    if (dependencyOrArray === ScopeDependency)
+    if (dependencyOrArray === ContainerDependency)
       return this as unknown as T;
 
     if (this.cache.has(dependencyOrArray))
@@ -188,7 +188,7 @@ export class Scope {
   }
 
   /**
-   * Returns true if the dependency is resolved in this scope (not a parent scope).
+   * Returns true if the dependency is resolved in this container (not a parent container).
    * 
    * @param dependency 
    * @returns 
@@ -199,7 +199,7 @@ export class Scope {
 
 
   /**
-   * Returns true if all providers in this scope have been resolved.
+   * Returns true if all providers in this container have been resolved.
    * 
    * @returns 
    */
@@ -242,7 +242,7 @@ export class Scope {
    */
   public checkForCircularDependencies(provider: Provider, _start: Provider = provider): void {
     for (const dependency of provider.requires ?? []) {
-      if (dependency === ScopeDependency)
+      if (dependency === ContainerDependency)
         continue;
 
       const dependencyProvider = this.getProvider(dependency);
